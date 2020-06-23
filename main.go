@@ -100,10 +100,11 @@ func (a *AuthServer) Auth(args *AuthArgs, reply *AuthResponse) error {
 		Role:    role,
 	}
 
-	log.Println(
-		fmt.Sprintf("%s is an admin", args.MemberID),
-	)
-
+	if isAdmin {
+		log.Println(
+			fmt.Sprintf("%s is an admin", args.MemberID),
+		)
+	}
 	return nil
 }
 

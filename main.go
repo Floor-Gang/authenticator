@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	. "github.com/Floor-Gang/authserver/internel"
 	"github.com/bwmarrin/discordgo"
 	"log"
 	"net/http"
@@ -16,41 +16,23 @@ const (
 	configPath = "./config.yml"
 )
 
-var (
-	client      *discordgo.Session
-	adminConfig Config
-)
-
-type AuthArgs struct{ MemberID string }
-
-type AuthResponse struct {
-	Role    string
-	IsAdmin bool
-}
-
-type AuthServer struct{}
-
 func main() {
-	var err error
-	adminConfig = getConfig()
+	var config = GetConfig(configPath)
 
 	// Start Discord
-	client, err = discordgo.New("Bot " + adminConfig.Token)
-
-	if err != nil {
-		panic(err)
-	}
-
-	err = client.Open()
-
-	if err != nil {
-		panic(err)
-	}
+	startBot(config)
 
 	// Start the auth server
+	startRPC(config)
+
+	// Keep authserver alive
+	keepAlive()
+}
+
+func startRPC(config Config) {
 	authServer := new(AuthServer)
 
-	err = rpc.Register(authServer)
+	err := rpc.Register(authServer)
 
 	if err != nil {
 		panic(err)
@@ -58,61 +40,24 @@ func main() {
 
 	rpc.HandleHTTP()
 
-	fmt.Printf("Listening on port %d\n", adminConfig.Port)
-
-	err = http.ListenAndServe(":"+strconv.Itoa(adminConfig.Port), nil)
+	err = http.ListenAndServe(":"+strconv.Itoa(config.Port), nil)
 
 	if err != nil {
 		panic(err)
 	}
-
-	// keep alive
-	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
-	<-signalChan
 }
 
-func (a *AuthServer) Auth(args *AuthArgs, reply *AuthResponse) error {
-	member, err := client.GuildMember(adminConfig.Guild, args.MemberID)
-	isAdmin := false
-	role := ""
-
-	log.Println(
-		fmt.Sprintf("Looking up %s", args.MemberID),
-	)
+func startBot(config Config) {
+	client, _ := discordgo.New("Bot " + config.Token)
+	err := client.Open()
 
 	if err != nil {
-		log.Println(err)
-		return err
+		log.Fatalln("Failed to connect to Discord. Is the access token correct?")
 	}
-
-	for _, roleID := range member.Roles {
-		hasNeededRole := hasRole(roleID)
-		if hasNeededRole {
-			isAdmin = true
-			role = roleID
-			break
-		}
-	}
-
-	*reply = AuthResponse{
-		IsAdmin: isAdmin,
-		Role:    role,
-	}
-
-	if isAdmin {
-		log.Println(
-			fmt.Sprintf("%s is an admin", args.MemberID),
-		)
-	}
-	return nil
 }
 
-func hasRole(role string) bool {
-	for _, roleID := range adminConfig.Roles {
-		if roleID == role {
-			return true
-		}
-	}
-	return false
+func keepAlive() {
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
+	<-signalChan
 }

@@ -2,22 +2,27 @@ package internel
 
 import (
 	"fmt"
-	dg "github.com/bwmarrin/discordgo"
 	"log"
+
+	dg "github.com/bwmarrin/discordgo"
 )
 
+// AuthArgs structure
 type AuthArgs struct{ MemberID string }
 
+// AuthResponse structure
 type AuthResponse struct {
 	Role    string
 	IsAdmin bool
 }
 
+// AuthServer structure
 type AuthServer struct {
 	config *Config
 	client *dg.Session
 }
 
+// Auth function authentication framework
 func (a *AuthServer) Auth(args *AuthArgs, reply *AuthResponse) error {
 	member, err := a.client.GuildMember(a.config.Guild, args.MemberID)
 	isAdmin := false

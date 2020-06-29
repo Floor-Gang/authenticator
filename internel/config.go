@@ -1,12 +1,14 @@
 package internel
 
 import (
-	"github.com/go-yaml/yaml"
 	"io/ioutil"
 	"log"
 	"os"
+
+	"github.com/go-yaml/yaml"
 )
 
+// Config structure
 type Config struct {
 	Token  string   `yaml:"token"`
 	Prefix string   `yaml:"prefix"`
@@ -15,6 +17,7 @@ type Config struct {
 	Guild  string   `yaml:"guild"`
 }
 
+// GetConfig retrieves config as Config from path
 func GetConfig(path string) (config Config) {
 	if _, err := os.Stat(path); err != nil {
 		genConfig(path)
@@ -27,7 +30,7 @@ func GetConfig(path string) (config Config) {
 		log.Fatalln("Failed to read from configuration file. " + err.Error())
 	}
 
-	if err = yaml.Unmarshal(data, config); err != nil {
+	if err = yaml.Unmarshal(data, &config); err != nil {
 		log.Fatalln("Failed to parse configuration file. " + err.Error())
 	}
 

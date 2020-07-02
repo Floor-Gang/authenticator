@@ -63,16 +63,22 @@ func (bot *Bot) getHelp() dg.MessageEmbed {
 			field.Value += "\n"
 
 			for _, command := range feature.Commands {
-				field.Value += fmt.Sprintf("%s %s: %s\n", feature.CommandPrefix, command.Name,
+				field.Value += fmt.Sprintf("**%s %s**: %s\n", feature.CommandPrefix, command.Name,
 					command.Description)
+				field.Value += fmt.Sprintf(" - `%s ", feature.CommandPrefix)
+
+				length := len(command.Example)
 				for i, example := range command.Example {
-					field.Value += fmt.Sprintf("`%s ", feature.CommandPrefix)
-					if i == (len(example) - 1) {
-						field.Value += fmt.Sprintf("%s`", example)
+					if i == 0 {
+						field.Value += fmt.Sprintf("%s", example)
 					} else {
-						field.Value += fmt.Sprintf("%s ", example)
+						field.Value += fmt.Sprintf("<%s>", example)
+					}
+					if (length - 1) != i {
+						field.Value += " "
 					}
 				}
+				field.Value += "`\n"
 			}
 		}
 		embed.Fields = append(embed.Fields, &field)

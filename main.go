@@ -13,10 +13,10 @@ func main() {
 	var config = internal.GetConfig(configPath)
 
 	// Start Discord
-	internal.StartBot(config, configPath)
+	bot := internal.StartBot(config, configPath)
 
 	// Start the auth server
-	internal.StartServer(config)
+	internal.StartServer(config, bot)
 
 	// Keep auth-server alive
 	util.KeepAlive()

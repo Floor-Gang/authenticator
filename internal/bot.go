@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"fmt"
 	util "github.com/Floor-Gang/utilpkg"
 	dg "github.com/bwmarrin/discordgo"
 	"log"
@@ -8,18 +9,20 @@ import (
 )
 
 type Bot struct {
-	client     *dg.Session
+	Client     *dg.Session
 	config     Config
 	configPath string
+	Features   map[string]*Feature
 }
 
-func StartBot(config Config, path string) {
+func StartBot(config Config, path string) Bot {
 	client, _ := dg.New("Bot " + config.Token)
 
 	bot := Bot{
-		client:     client,
+		Client:     client,
 		config:     config,
 		configPath: path,
+		Features:   make(map[string]*Feature),
 	}
 
 	intents := dg.MakeIntent(
@@ -32,9 +35,36 @@ func StartBot(config Config, path string) {
 	if err := client.Open(); err != nil {
 		util.Report("Failed to connect to Discord. Is the access token correct?", err)
 	}
+
+	return bot
+}
+
+func (bot *Bot) getHelp() (features string) {
+	features = "Current Features:\n"
+	for _, feature := range bot.Features {
+		features += fmt.Sprintf("**%s**: %s\n", feature.Name, feature.Description)
+		for _, command := range feature.Commands {
+			features += fmt.Sprintf(" - %s: %s\n", command.Name, command.Description)
+			features += " - `"
+			for i, example := range command.Example {
+				if i == (len(command.Example) - 1) {
+					features += fmt.Sprintf("%s, ", example)
+				} else {
+					features += fmt.Sprintf("%s`\n", example)
+				}
+			}
+		}
+	}
+	return features
 }
 
 func (bot *Bot) OnMessage(_ *dg.Session, msg *dg.MessageCreate) {
+	// .help
+	if msg.Content == ".help" {
+		_, _ = util.Reply(bot.Client, msg.Message, bot.getHelp())
+		return
+	}
+
 	// Ignore bots and messages that don't start with command prefix
 	if msg.Author.Bot || !strings.HasPrefix(msg.Content, bot.config.Prefix) {
 		return
@@ -56,7 +86,7 @@ func (bot *Bot) OnMessage(_ *dg.Session, msg *dg.MessageCreate) {
 
 	if !isAdmin {
 		_, _ = util.Reply(
-			bot.client,
+			bot.Client,
 			msg.Message,
 			"You don't have permissions to run this command.",
 		)

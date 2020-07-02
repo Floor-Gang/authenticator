@@ -39,29 +39,56 @@ func StartBot(config Config, path string) Bot {
 	return bot
 }
 
-func (bot *Bot) getHelp() (features string) {
-	features = "Current Features:\n"
+// Output:
+// Current Features:
+// **FaQ Manager**: For managing the FaQ Channel
+// - .faq add:
+//   - .faq add question NEWLINE answer
+// ...
+func (bot *Bot) getHelp() dg.MessageEmbed {
+	embed := dg.MessageEmbed{
+		Title:       "Current Features",
+		Description: "These are all the current loaded ",
+		Color:       0xef2f2f,
+		Fields:      []*dg.MessageEmbedField{},
+	}
+
 	for _, feature := range bot.Features {
-		features += fmt.Sprintf("**%s**: %s\n", feature.Name, feature.Description)
-		for _, command := range feature.Commands {
-			features += fmt.Sprintf(" - %s: %s\n", command.Name, command.Description)
-			features += " - `"
-			for i, example := range command.Example {
-				if i == (len(command.Example) - 1) {
-					features += fmt.Sprintf("%s, ", example)
-				} else {
-					features += fmt.Sprintf("%s`\n", example)
+		field := dg.MessageEmbedField{
+			Name:   feature.Name,
+			Value:  feature.Description,
+			Inline: false,
+		}
+		if len(feature.Commands) > 0 {
+			field.Value += "\n"
+
+			for _, command := range feature.Commands {
+				field.Value += fmt.Sprintf("%s %s: %s\n", feature.CommandPrefix, command.Name,
+					command.Description)
+				for i, example := range command.Example {
+					field.Value += fmt.Sprintf("`%s ", feature.CommandPrefix)
+					if i == (len(example) - 1) {
+						field.Value += fmt.Sprintf("%s`", example)
+					} else {
+						field.Value += fmt.Sprintf("%s ", example)
+					}
 				}
 			}
 		}
+		embed.Fields = append(embed.Fields, &field)
 	}
-	return features
+
+	return embed
 }
 
 func (bot *Bot) OnMessage(_ *dg.Session, msg *dg.MessageCreate) {
 	// .help
 	if msg.Content == ".help" {
-		_, _ = util.Reply(bot.Client, msg.Message, bot.getHelp())
+		helpEmbed := bot.getHelp()
+		_, _ = bot.Client.ChannelMessageSendEmbed(
+			msg.ChannelID,
+			&helpEmbed,
+		)
 		return
 	}
 

@@ -4,9 +4,10 @@ package internal
 
 // Feature to register.
 type Feature struct {
-	Name        string       // ie. ".admin"
-	Description string       // "For managing administrator"
-	Commands    []SubCommand // Optionally empty
+	Name          string       // ie. ".admin"
+	Description   string       // "For managing administrator"
+	Commands      []SubCommand // Optionally empty
+	CommandPrefix string       // Optionally empty
 }
 
 // Commands that come with this feature.

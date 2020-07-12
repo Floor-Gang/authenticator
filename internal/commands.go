@@ -9,12 +9,12 @@ import (
 func (bot *Bot) add(msg *dg.MessageCreate, args []string) {
 	roleIDs := args[2:]
 	var response = "Added Roles:\n"
-	guildRoles, _ := bot.client.GuildRoles(msg.GuildID)
+	guildRoles, _ := bot.Client.GuildRoles(msg.GuildID)
 
 	for _, roleID := range roleIDs {
 		role := getRole(roleID, guildRoles)
 		if role == nil {
-			_, _ = util.Reply(bot.client, msg.Message, "Couldn't find "+roleID)
+			_, _ = util.Reply(bot.Client, msg.Message, "Couldn't find "+roleID)
 			continue
 		}
 		response += fmt.Sprintf(" - %s\n", role.Name)
@@ -24,10 +24,10 @@ func (bot *Bot) add(msg *dg.MessageCreate, args []string) {
 	err := save(bot.config, bot.configPath)
 
 	if err != nil {
-		_, _ = util.Reply(bot.client, msg.Message, "Failed to remove roles.")
+		_, _ = util.Reply(bot.Client, msg.Message, "Failed to remove roles.")
 		util.Report("Failed to remove roles", err)
 	} else {
-		_, _ = util.Reply(bot.client, msg.Message, response)
+		_, _ = util.Reply(bot.Client, msg.Message, response)
 	}
 }
 
@@ -37,13 +37,13 @@ func (bot *Bot) remove(msg *dg.MessageCreate, args []string) {
 	roleIDs := args[2:]
 	var newConfigRoles []string
 	var response = "Removed Roles:\n"
-	guildRoles, _ := bot.client.GuildRoles(msg.GuildID)
+	guildRoles, _ := bot.Client.GuildRoles(msg.GuildID)
 
 	for _, storedRole := range bot.config.Roles {
 		for _, roleID := range roleIDs {
 			role := getRole(roleID, guildRoles)
 			if role == nil {
-				_, _ = util.Reply(bot.client, msg.Message, "Couldn't find "+roleID)
+				_, _ = util.Reply(bot.Client, msg.Message, "Couldn't find "+roleID)
 				continue
 			}
 			if storedRole == roleID {
@@ -59,10 +59,10 @@ func (bot *Bot) remove(msg *dg.MessageCreate, args []string) {
 	err := save(bot.config, bot.configPath)
 
 	if err != nil {
-		_, _ = util.Reply(bot.client, msg.Message, "Failed to remove roles.")
+		_, _ = util.Reply(bot.Client, msg.Message, "Failed to remove roles.")
 		util.Report("Failed to remove roles", err)
 	} else {
-		_, _ = util.Reply(bot.client, msg.Message, response)
+		_, _ = util.Reply(bot.Client, msg.Message, response)
 	}
 }
 
@@ -77,11 +77,11 @@ func getRole(roleID string, roles []*dg.Role) *dg.Role {
 
 func (bot *Bot) list(msg *dg.MessageCreate) {
 	list := fmt.Sprintf("<@%s> Admin Roles:\n", msg.Author.ID)
-	roles, err := bot.client.GuildRoles(bot.config.Guild)
+	roles, err := bot.Client.GuildRoles(bot.config.Guild)
 
 	if err != nil {
 		util.Report("Failed to fetch roles for "+bot.config.Guild, err)
-		_, _ = util.Reply(bot.client, msg.Message, "Failed. See logs.")
+		_, _ = util.Reply(bot.Client, msg.Message, "Failed. See logs.")
 		return
 	}
 
@@ -91,7 +91,7 @@ func (bot *Bot) list(msg *dg.MessageCreate) {
 		}
 	}
 
-	_, _ = bot.client.ChannelMessageSend(msg.ChannelID, list)
+	_, _ = bot.Client.ChannelMessageSend(msg.ChannelID, list)
 }
 
 func has(x string, y []string) bool {

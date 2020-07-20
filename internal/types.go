@@ -19,8 +19,8 @@ type SubCommand struct {
 
 // Response from the server while registering.
 type RegisterResponse struct {
-	Registered bool
-	Token      string
+	Serving string // The ID of the Guild being served
+	Token   string // The Discord bot access token
 }
 
 // Authentication

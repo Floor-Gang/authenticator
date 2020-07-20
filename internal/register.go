@@ -5,8 +5,8 @@ func (a *AuthServer) Register(args *Feature, res *RegisterResponse) error {
 	a.Features[name] = args
 
 	*res = RegisterResponse{
-		Token:      a.client.Token,
-		Registered: true,
+		Token:   a.client.Token,
+		Serving: a.config.Guild,
 	}
 
 	return nil

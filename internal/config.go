@@ -1,9 +1,7 @@
 package internal
 
 import (
-	util "github.com/Floor-Gang/utilpkg"
-	"github.com/go-yaml/yaml"
-	"io/ioutil"
+	util "github.com/Floor-Gang/utilpkg/config"
 	"log"
 	"strings"
 )
@@ -17,8 +15,11 @@ type Config struct {
 	Guild  string   `yaml:"guild"`
 }
 
+var location *string
+
 // GetConfig retrieves config as Config from path.
 func GetConfig(path string) (config Config) {
+	location = &path
 	config = Config{
 		Token:  "",
 		Prefix: ".admin",
@@ -40,12 +41,6 @@ func GetConfig(path string) (config Config) {
 	return config
 }
 
-func save(config Config, path string) error {
-	serialized, _ := yaml.Marshal(&config)
-	err := ioutil.WriteFile(path, serialized, 0660)
-
-	if err != nil {
-		util.Report("Failed to save configuration", err)
-	}
-	return err
+func (config *Config) save() error {
+	return util.Save(*location, config)
 }

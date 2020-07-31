@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"github.com/Floor-Gang/authserver/pkg"
 	dg "github.com/bwmarrin/discordgo"
 	"net/http"
 	"net/rpc"
@@ -10,8 +11,8 @@ import (
 // AuthServer structure.
 type AuthServer struct {
 	config   Config
-	client   *dg.Session         // Discord bot
-	Features map[string]*Feature // Registered features
+	client   *dg.Session             // Discord bot
+	Features map[string]*pkg.Feature // Registered features
 }
 
 func StartServer(config Config, bot Bot) {

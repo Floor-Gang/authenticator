@@ -2,12 +2,13 @@ package internal
 
 import (
 	"fmt"
+	"github.com/Floor-Gang/authserver/pkg"
 	util "github.com/Floor-Gang/utilpkg"
 	"log"
 )
 
 // Auth function authentication framework.
-func (a *AuthServer) Auth(args *AuthArgs, reply *AuthResponse) error {
+func (a *AuthServer) Auth(args *pkg.AuthArgs, reply *pkg.AuthResponse) error {
 	member, err := a.client.GuildMember(a.config.Guild, args.MemberID)
 
 	log.Println(
@@ -21,7 +22,7 @@ func (a *AuthServer) Auth(args *AuthArgs, reply *AuthResponse) error {
 
 	isAdmin, role := hasRole(member.Roles, a.config.Roles)
 
-	*reply = AuthResponse{
+	*reply = pkg.AuthResponse{
 		IsAdmin: isAdmin,
 		Role:    role,
 	}

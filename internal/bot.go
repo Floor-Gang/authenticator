@@ -2,7 +2,8 @@ package internal
 
 import (
 	"fmt"
-	util "github.com/Floor-Gang/utilpkg"
+	"github.com/Floor-Gang/authserver/pkg"
+	util "github.com/Floor-Gang/utilpkg/botutil"
 	dg "github.com/bwmarrin/discordgo"
 	"log"
 	"strings"
@@ -12,7 +13,7 @@ type Bot struct {
 	Client     *dg.Session
 	config     Config
 	configPath string
-	Features   map[string]*Feature
+	Features   map[string]*pkg.Feature
 }
 
 func StartBot(config Config, path string) Bot {
@@ -22,7 +23,7 @@ func StartBot(config Config, path string) Bot {
 		Client:     client,
 		config:     config,
 		configPath: path,
-		Features:   make(map[string]*Feature),
+		Features:   make(map[string]*pkg.Feature),
 	}
 
 	intents := dg.MakeIntent(
@@ -33,18 +34,12 @@ func StartBot(config Config, path string) Bot {
 	client.Identify.Intents = intents
 
 	if err := client.Open(); err != nil {
-		util.Report("Failed to connect to Discord. Is the access token correct?", err)
+		log.Println("Failed to connect to Discord. Is the access token correct?", err)
 	}
 
 	return bot
 }
 
-// Output:
-// Current Features:
-// **FaQ Manager**: For managing the FaQ Channel
-// - .faq add:
-//   - .faq add question NEWLINE answer
-// ...
 func (bot *Bot) getHelp() dg.MessageEmbed {
 	embed := dg.MessageEmbed{
 		Title:       "Current Features",

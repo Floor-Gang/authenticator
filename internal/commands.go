@@ -2,8 +2,9 @@ package internal
 
 import (
 	"fmt"
-	util "github.com/Floor-Gang/utilpkg"
+	util "github.com/Floor-Gang/utilpkg/botutil"
 	dg "github.com/bwmarrin/discordgo"
+	"log"
 )
 
 func (bot *Bot) add(msg *dg.MessageCreate, args []string) {
@@ -21,11 +22,11 @@ func (bot *Bot) add(msg *dg.MessageCreate, args []string) {
 		bot.config.Roles = append(bot.config.Roles, roleID)
 	}
 
-	err := save(bot.config, bot.configPath)
+	err := bot.config.save()
 
 	if err != nil {
 		_, _ = util.Reply(bot.Client, msg.Message, "Failed to remove roles.")
-		util.Report("Failed to remove roles", err)
+		log.Println("Failed to remove roles", err)
 	} else {
 		_, _ = util.Reply(bot.Client, msg.Message, response)
 	}
@@ -56,11 +57,11 @@ func (bot *Bot) remove(msg *dg.MessageCreate, args []string) {
 
 	bot.config.Roles = newConfigRoles
 
-	err := save(bot.config, bot.configPath)
+	err := bot.config.save()
 
 	if err != nil {
 		_, _ = util.Reply(bot.Client, msg.Message, "Failed to remove roles.")
-		util.Report("Failed to remove roles", err)
+		log.Println("Failed to remove roles", err)
 	} else {
 		_, _ = util.Reply(bot.Client, msg.Message, response)
 	}
@@ -80,7 +81,7 @@ func (bot *Bot) list(msg *dg.MessageCreate) {
 	roles, err := bot.Client.GuildRoles(bot.config.Guild)
 
 	if err != nil {
-		util.Report("Failed to fetch roles for "+bot.config.Guild, err)
+		log.Println("Failed to fetch roles for "+bot.config.Guild, err)
 		_, _ = util.Reply(bot.Client, msg.Message, "Failed. See logs.")
 		return
 	}

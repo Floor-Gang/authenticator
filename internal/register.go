@@ -1,11 +1,14 @@
 package internal
 
-func (a *AuthServer) Register(args *Feature, res *RegisterResponse) error {
+import (
+	"github.com/Floor-Gang/authserver/pkg"
+)
+
+func (a *AuthServer) Register(args *pkg.Feature, res *pkg.RegisterResponse) error {
 	name := args.Name
 	a.Features[name] = args
 
-	*res = RegisterResponse{
-		Token:   a.client.Token,
+	*res = pkg.RegisterResponse{
 		Serving: a.config.Guild,
 	}
 
